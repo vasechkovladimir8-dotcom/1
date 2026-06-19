@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.main')
 
 @section('title', $plant->name . ' - Справочник растений')
 
@@ -39,7 +39,8 @@
             </div>
 
             @auth
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap">
+                    <!-- Кнопка избранного -->
                     <form action="{{ route('favorites.toggle', $plant->id) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-outline-danger">
@@ -50,6 +51,16 @@
                             @endif
                         </button>
                     </form>
+
+                    <!-- Кнопка добавления заметки -->
+                    <a href="{{ route('notes.create', $plant->id) }}" class="btn btn-outline-success">
+                        <i class="bi bi-journal-plus me-2"></i>Добавить заметку
+                    </a>
+                </div>
+            @else
+                <div class="alert alert-info mt-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <a href="{{ route('login') }}" class="alert-link">Войдите</a>, чтобы добавлять растения в избранное и создавать заметки.
                 </div>
             @endauth
         </div>
@@ -87,6 +98,48 @@
             @endif
         </div>
     </div>
+
+    <!-- Заметки пользователя к этому растению -->
+    @auth
+        @php
+            $userNotes = $plant->notes()->where('user_id', auth()->id())->latest()->get();
+        @endphp
+
+        @if($userNotes->count() > 0)
+            <div class="row mt-5">
+                <div class="col-12">
+                    <h2 class="section-title">
+                        <i class="bi bi-journal-text me-2"></i>Мои заметки
+                    </h2>
+                    @foreach($userNotes as $note)
+                        <div class="card border-0 shadow-sm mb-3" style="border-radius: 15px;">
+                            <div class="card-body">
+                                <p class="mb-2">{{ $note->content }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock me-1"></i>
+                                        {{ $note->created_at->format('d.m.Y H:i') }}
+                                    </small>
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ route('notes.edit', $note->id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form action="{{ route('notes.destroy', $note->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Удалить заметку?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+    @endauth
 
     <div class="mt-4">
         <a href="{{ route('plants.index') }}" class="btn btn-outline-success">

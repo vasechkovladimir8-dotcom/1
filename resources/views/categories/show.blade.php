@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.main')
 
 @section('title', $category->name . ' - Справочник растений')
 
@@ -45,7 +45,7 @@
         @endforelse
     </div>
 
-    <div class="mt-4">
+    <div class="mt-4">Ф
         <a href="{{ route('home') }}" class="btn btn-outline-success">
             <i class="bi bi-arrow-left me-2"></i>На главную
         </a>
