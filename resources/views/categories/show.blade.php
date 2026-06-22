@@ -45,7 +45,7 @@
         @endforelse
     </div>
 
-    <div class="mt-4">Ф
+    <div class="mt-4">
         <a href="{{ route('home') }}" class="btn btn-outline-success">
             <i class="bi bi-arrow-left me-2"></i>На главную
         </a>
