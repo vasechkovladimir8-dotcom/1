@@ -10,7 +10,7 @@
 
 <div class="card table-card">
     <div class="card-body p-4">
-        <form action="{{ route('admin.categories.update', $category->id) }}" method="POST">
+        <form action="{{ route('admin.categories.update', $category->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -21,6 +21,22 @@
                 @error('name')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Изображение категории</label>
+                <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
+                <small class="text-muted">JPG, PNG, GIF. Макс. 2 МБ. Загрузите новое, чтобы заменить текущее.</small>
+                @error('image')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+                
+                @if($category->image)
+                    <div class="mt-3">
+                        <img src="{{ asset('storage/' . $category->image) }}" alt="Текущее изображение" 
+                             style="max-width: 200px; max-height: 150px; border-radius: 8px;">
+                    </div>
+                @endif
             </div>
 
             <div class="d-flex gap-2">

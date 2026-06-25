@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Note;
 use App\Models\Plant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NoteController extends Controller
 {
-    // Список всех заметок пользователя
     public function index()
     {
-        $notes = auth()->user()
-            ->notes()
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        $notes = $user->notes()
             ->with('plant')
             ->latest()
             ->paginate(10);
@@ -20,14 +22,12 @@ class NoteController extends Controller
         return view('notes.index', compact('notes'));
     }
 
-    // Форма создания заметки к растению
     public function create($plantId)
     {
         $plant = Plant::findOrFail($plantId);
         return view('notes.create', compact('plant'));
     }
 
-    // Сохранение заметки
     public function store(Request $request, $plantId)
     {
         $request->validate([
@@ -38,9 +38,10 @@ class NoteController extends Controller
         ]);
 
         $plant = Plant::findOrFail($plantId);
+        $user = Auth::user();
 
         Note::create([
-            'user_id' => auth()->id(),
+            'user_id' => $user->id,
             'plant_id' => $plant->id,
             'content' => $request->content,
         ]);
@@ -49,17 +50,21 @@ class NoteController extends Controller
             ->with('success', 'Заметка успешно добавлена');
     }
 
-    // Форма редактирования заметки
     public function edit($id)
     {
-        $note = Note::where('user_id', auth()->id())->findOrFail($id);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        $note = Note::where('user_id', $user->id)->findOrFail($id);
         return view('notes.edit', compact('note'));
     }
 
-    // Обновление заметки
     public function update(Request $request, $id)
     {
-        $note = Note::where('user_id', auth()->id())->findOrFail($id);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        $note = Note::where('user_id', $user->id)->findOrFail($id);
 
         $request->validate([
             'content' => 'required|string|max:2000',
@@ -76,10 +81,12 @@ class NoteController extends Controller
             ->with('success', 'Заметка обновлена');
     }
 
-    // Удаление заметки
     public function destroy($id)
     {
-        $note = Note::where('user_id', auth()->id())->findOrFail($id);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        $note = Note::where('user_id', $user->id)->findOrFail($id);
         $note->delete();
 
         return redirect()->route('notes.index')

@@ -19,7 +19,7 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 60px;">Фото</th>
+                        <th style="width: 100px;">Фото</th>
                         <th>Название</th>
                         <th>Латинское название</th>
                         <th>Категория</th>
@@ -31,11 +31,13 @@
                         <tr>
                             <td>
                                 @if($plant->image)
-                                    <img src="{{ asset('storage/' . $plant->image) }}" 
-                                         alt="{{ $plant->name }}" 
-                                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                                    <div style="width: 80px; height: 80px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                        <img src="{{ asset('storage/' . $plant->image) }}" 
+                                             alt="{{ $plant->name }}"
+                                             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                                    </div>
                                 @else
-                                    <div style="width: 50px; height: 50px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <div style="width: 80px; height: 80px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                                         <i class="bi bi-image text-muted"></i>
                                     </div>
                                 @endif

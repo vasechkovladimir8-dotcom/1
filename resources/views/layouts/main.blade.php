@@ -175,6 +175,67 @@
             margin-bottom: 1rem;
         }
         
+        /* Карточка категории с оверлеем */
+        .category-card-overlay {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            height: 250px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            transition: all 0.3s ease;
+        }
+
+        .category-card-overlay:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(45, 80, 22, 0.2);
+        }
+
+        .category-bg-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .category-card-overlay:hover .category-bg-image {
+            transform: scale(1.1);
+        }
+
+        .category-bg-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-bg-placeholder i {
+            font-size: 5rem;
+            color: white;
+            opacity: 0.5;
+        }
+
+        .category-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem 1.5rem 1.5rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+            z-index: 2;
+        }
+
+        .category-overlay h5 {
+            font-size: 1.3rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .category-overlay p {
+            font-size: 0.95rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
         .section-title {
             font-weight: 700;
             color: var(--primary-green);

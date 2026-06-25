@@ -21,7 +21,7 @@
                         <th>Email</th>
                         <th>Роль</th>
                         <th>Дата регистрации</th>
-                        <th style="width: 100px;">Действия</th>
+                        <th style="width: 180px;">Действия</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -48,17 +48,27 @@
                             </td>
                             <td>{{ $user->created_at->format('d.m.Y H:i') }}</td>
                             <td>
-                                @if($user->id !== auth()->id())
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Удалить пользователя «{{ $user->name }}»?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                @else
-                                    <span class="text-muted small">—</span>
-                                @endif
+                                <div class="d-flex gap-1">
+                                    @if($user->id !== auth()->id())
+                                        <a href="{{ route('admin.users.edit-role', $user->id) }}" 
+                                           class="btn btn-sm btn-outline-primary" 
+                                           title="Изменить роль">
+                                            <i class="bi bi-shield"></i>
+                                        </a>
+                                        <form action="{{ route('admin.users.destroy', $user->id) }}" 
+                                              method="POST" 
+                                              class="d-inline" 
+                                              onsubmit="return confirm('Удалить пользователя «{{ $user->name }}»?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-muted small">—</span>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

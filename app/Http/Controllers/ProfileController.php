@@ -42,11 +42,12 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
         $user = $request->user();
+
+        // Нельзя удалить администратора
+        if ($user->role && $user->role->name === 'admin') {
+            return Redirect::back()->with('error', 'Аккаунт администратора не может быть удалён');
+        }
 
         Auth::logout();
 
@@ -55,6 +56,6 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return Redirect::to('/')->with('success', 'Аккаунт успешно удалён');
     }
 }

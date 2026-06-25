@@ -10,7 +10,7 @@
 
 <div class="card table-card">
     <div class="card-body p-4">
-        <form action="{{ route('admin.categories.store') }}" method="POST">
+        <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="mb-3">
@@ -18,6 +18,15 @@
                 <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
                        value="{{ old('name') }}" required maxlength="255">
                 @error('name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Изображение категории</label>
+                <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
+                <small class="text-muted">JPG, PNG, GIF. Макс. 2 МБ. Рекомендуется квадратное изображение.</small>
+                @error('image')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>

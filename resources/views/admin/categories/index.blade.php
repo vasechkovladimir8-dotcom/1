@@ -19,6 +19,7 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
+                        <th style="width: 100px;">Фото</th>
                         <th style="width: 60px;">#</th>
                         <th>Название</th>
                         <th style="width: 150px;">Кол-во растений</th>
@@ -28,6 +29,19 @@
                 <tbody>
                     @forelse($categories as $category)
                         <tr>
+                            <td>
+                                @if($category->image)
+                                    <div style="width: 80px; height: 80px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                        <img src="{{ asset('storage/' . $category->image) }}" 
+                                             alt="{{ $category->name }}"
+                                             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                                    </div>
+                                @else
+                                    <div style="width: 80px; height: 80px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>
+                                @endif
+                            </td>
                             <td>{{ $category->id }}</td>
                             <td><strong>{{ $category->name }}</strong></td>
                             <td>
@@ -48,7 +62,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center py-4 text-muted">
+                            <td colspan="5" class="text-center py-4 text-muted">
                                 <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                 Категории ещё не добавлены
                             </td>

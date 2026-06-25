@@ -12,15 +12,13 @@ class PlantController extends Controller
     {
         $query = Plant::with(['category', 'characteristics']);
 
-        // Поиск по названию
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where('name', 'like', "%{$search}%");
+            $search = $request->input('search');
+            $query->where('name', 'like', '%' . $search . '%');
         }
 
-        // Фильтрация по категории
         if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
+            $query->where('category_id', $request->input('category'));
         }
 
         $plants = $query->paginate(12);

@@ -48,11 +48,21 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Изображение</label>
+                    <label class="form-label">Основное изображение</label>
                     <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
                     <small class="text-muted">JPG, PNG, GIF. Макс. 2 МБ</small>
                     @error('image')
                         <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Дополнительные фотографии</label>
+                    <input type="file" name="images[]" class="form-control @error('images.*') is-invalid @enderror" 
+                           accept="image/*" multiple>
+                    <small class="text-muted">Можно выбрать несколько файлов. JPG, PNG, GIF. Макс. 2 МБ каждое.</small>
+                    @error('images.*')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
 
@@ -62,6 +72,33 @@
                     @error('description')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
+                </div>
+
+                <!-- Характеристики -->
+                <div class="col-12">
+                    <h5 class="mb-3">
+                        <i class="bi bi-list-ul me-2"></i>Характеристики
+                    </h5>
+                    <div class="row g-3">
+                        @php
+                            $groupedChars = [];
+                            foreach($characteristics as $char) {
+                                $groupedChars[$char->name][] = $char;
+                            }
+                        @endphp
+                        
+                        @foreach($groupedChars as $charName => $charValues)
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">{{ $charName }}</label>
+                                <select name="characteristics[]" class="form-select">
+                                    <option value="">— Не указано —</option>
+                                    @foreach($charValues as $char)
+                                        <option value="{{ $char->id }}">{{ $char->value }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 

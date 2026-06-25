@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Favorite;
 use App\Models\Plant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FavoriteController extends Controller
 {
-    // Список избранных растений
     public function index()
     {
-        $favorites = auth()->user()
-            ->favorites()
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        $favorites = $user->favorites()
             ->with('plant.category')
             ->latest()
             ->paginate(12);
@@ -20,11 +22,10 @@ class FavoriteController extends Controller
         return view('favorites.index', compact('favorites'));
     }
 
-    // Добавить/удалить из избранного (toggle)
     public function toggle($plantId)
     {
         $plant = Plant::findOrFail($plantId);
-        $user = auth()->user();
+        $user = Auth::user();
 
         $existing = Favorite::where('user_id', $user->id)
             ->where('plant_id', $plant->id)

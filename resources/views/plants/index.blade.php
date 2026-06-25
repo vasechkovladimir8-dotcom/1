@@ -47,7 +47,11 @@
             <div class="col-md-3">
                 <div class="plant-card">
                     @if($plant->image)
-                        <img src="{{ asset('storage/' . $plant->image) }}" class="card-img-top plant-image" alt="{{ $plant->name }}">
+                        <div style="height: 220px; background: #f8f9fa; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ asset('storage/' . $plant->image) }}" 
+                                 alt="{{ $plant->name }}"
+                                 style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        </div>
                     @else
                         <div class="card-img-top plant-image bg-light d-flex align-items-center justify-content-center">
                             <i class="bi bi-flower1" style="font-size: 4rem; color: var(--accent-green); opacity: 0.3;"></i>

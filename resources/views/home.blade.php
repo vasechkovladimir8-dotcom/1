@@ -25,26 +25,20 @@
         @foreach($categories as $category)
             <div class="col-md-4">
                 <a href="{{ route('categories.show', $category->id) }}" class="text-decoration-none">
-                    <div class="category-card">
-                        <div class="category-icon">
-                            @if($category->name === 'Кактусы')
-                                <i class="bi bi-flower2"></i>
-                            @elseif($category->name === 'Суккуленты')
-                                <i class="bi bi-tree"></i>
-                            @elseif($category->name === 'Папоротники')
-                                <i class="bi bi-tree-fill"></i>
-                            @elseif($category->name === 'Цветущие')
+                    <div class="category-card-overlay">
+                        @if($category->image)
+                            <img src="{{ asset('storage/' . $category->image) }}" 
+                                 alt="{{ $category->name }}"
+                                 class="category-bg-image">
+                        @else
+                            <div class="category-bg-placeholder">
                                 <i class="bi bi-flower1"></i>
-                            @elseif($category->name === 'Декоративно-лиственные')
-                                <i class="bi bi-leaves"></i>
-                            @elseif($category->name === 'Пальмы')
-                                <i class="bi bi-tree"></i>
-                            @else
-                                <i class="bi bi-flower1"></i>
-                            @endif
+                            </div>
+                        @endif
+                        <div class="category-overlay">
+                            <h5 class="fw-bold mb-1 text-white">{{ $category->name }}</h5>
+                            <p class="text-white-50 mb-0">{{ $category->plants_count }} растений</p>
                         </div>
-                        <h5 class="fw-bold mb-2" style="color: var(--primary-green);">{{ $category->name }}</h5>
-                        <p class="text-muted mb-0">{{ $category->plants_count }} растений</p>
                     </div>
                 </a>
             </div>
@@ -60,9 +54,13 @@
             <div class="col-md-4">
                 <div class="plant-card">
                     @if($plant->image)
-                        <img src="{{ asset('storage/' . $plant->image) }}" class="card-img-top plant-image" alt="{{ $plant->name }}">
+                        <div style="height: 220px; overflow: hidden;">
+                            <img src="{{ asset('storage/' . $plant->image) }}" 
+                                 alt="{{ $plant->name }}"
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
                     @else
-                        <div class="card-img-top plant-image bg-light d-flex align-items-center justify-content-center">
+                        <div class="card-img-top plant-image bg-light d-flex align-items-center justify-content-center" style="height: 220px;">
                             <i class="bi bi-flower1" style="font-size: 4rem; color: var(--accent-green); opacity: 0.3;"></i>
                         </div>
                     @endif

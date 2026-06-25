@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Plant;
+use App\Models\PlantImage;
 use App\Models\Category;
 use App\Models\Characteristic;
 use Illuminate\Http\Request;
@@ -41,20 +42,41 @@ class PlantController extends Controller
             'latin_name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'category_id.required' => 'Выберите категорию',
             'name.required' => 'Название обязательно',
-            'image.max' => 'Изображение не должно превышать 2 МБ',
+            'image.max' => 'Основное изображение не должно превышать 2 МБ',
+            'images.*.max' => 'Дополнительное изображение не должно превышать 2 МБ',
+            'image.image' => 'Файл должен быть изображением',
+            'images.*.image' => 'Файл должен быть изображением',
         ]);
 
-        // Загрузка изображения
+        // Загрузка основного изображения
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('plants', 'public');
         }
 
-        Plant::create($validated);
+        // Создание растения
+        $plant = Plant::create($validated);
 
-        return redirect()->route('admin.plants.index')->with('success', 'Растение успешно добавлено');
+        // Загрузка дополнительных изображений
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('plants', 'public');
+                PlantImage::create([
+                    'plant_id' => $plant->id,
+                    'path' => $path,
+                    'sort_order' => $index,
+                ]);
+            }
+        }
+
+        // Привязка характеристик
+        $this->syncCharacteristics($plant, $request);
+
+        return redirect()->route('admin.plants.index')
+            ->with('success', 'Растение успешно добавлено');
     }
 
     /**
@@ -62,7 +84,7 @@ class PlantController extends Controller
      */
     public function show($id)
     {
-        $plant = Plant::with(['category', 'characteristics'])->findOrFail($id);
+        $plant = Plant::with(['category', 'characteristics', 'images'])->findOrFail($id);
         return view('admin.plants.show', compact('plant'));
     }
 
@@ -71,7 +93,7 @@ class PlantController extends Controller
      */
     public function edit($id)
     {
-        $plant = Plant::findOrFail($id);
+        $plant = Plant::with('images')->findOrFail($id);
         $categories = Category::all();
         $characteristics = Characteristic::all();
         return view('admin.plants.edit', compact('plant', 'categories', 'characteristics'));
@@ -90,11 +112,16 @@ class PlantController extends Controller
             'latin_name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'category_id.required' => 'Выберите категорию',
+            'name.required' => 'Название обязательно',
+            'image.max' => 'Основное изображение не должно превышать 2 МБ',
+            'images.*.max' => 'Дополнительное изображение не должно превышать 2 МБ',
         ]);
 
-        // Загрузка нового изображения
+        // Обновление основного изображения
         if ($request->hasFile('image')) {
-            // Удаляем старое изображение
             if ($plant->image) {
                 Storage::disk('public')->delete($plant->image);
             }
@@ -103,7 +130,35 @@ class PlantController extends Controller
 
         $plant->update($validated);
 
-        return redirect()->route('admin.plants.index')->with('success', 'Растение обновлено');
+        // Удаление выбранных дополнительных изображений
+        if ($request->has('delete_images')) {
+            foreach ($request->delete_images as $imageId) {
+                $image = $plant->images()->find($imageId);
+                if ($image) {
+                    Storage::disk('public')->delete($image->path);
+                    $image->delete();
+                }
+            }
+        }
+
+        // Загрузка новых дополнительных изображений
+        if ($request->hasFile('images')) {
+            $sortOrder = $plant->images()->count();
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('plants', 'public');
+                PlantImage::create([
+                    'plant_id' => $plant->id,
+                    'path' => $path,
+                    'sort_order' => $sortOrder++,
+                ]);
+            }
+        }
+
+        // Обновление характеристик
+        $this->syncCharacteristics($plant, $request);
+
+        return redirect()->route('admin.plants.index')
+            ->with('success', 'Растение успешно обновлено');
     }
 
     /**
@@ -113,12 +168,42 @@ class PlantController extends Controller
     {
         $plant = Plant::findOrFail($id);
         
-        // Удаляем изображение
+        // Удаление основного изображения
         if ($plant->image) {
             Storage::disk('public')->delete($plant->image);
         }
         
+        // Удаление всех дополнительных изображений
+        foreach ($plant->images as $image) {
+            Storage::disk('public')->delete($image->path);
+            $image->delete();
+        }
+        
+        // Отвязка характеристик и удаление растения
+        $plant->characteristics()->detach();
+        $plant->favorites()->delete();
+        $plant->notes()->delete();
         $plant->delete();
-        return redirect()->route('admin.plants.index')->with('success', 'Растение удалено');
+        
+        return redirect()->route('admin.plants.index')
+            ->with('success', 'Растение удалено');
+    }
+
+    /**
+     * Привязка характеристик к растению
+     */
+    private function syncCharacteristics(Plant $plant, Request $request)
+    {
+        $characteristicIds = [];
+        
+        if ($request->has('characteristics')) {
+            foreach ($request->input('characteristics') as $charId) {
+                if ($charId) {
+                    $characteristicIds[] = $charId;
+                }
+            }
+        }
+        
+        $plant->characteristics()->sync($characteristicIds);
     }
 }

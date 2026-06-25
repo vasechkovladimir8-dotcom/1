@@ -49,7 +49,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Изображение</label>
+                    <label class="form-label">Основное изображение</label>
                     <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
                     <small class="text-muted">JPG, PNG, GIF. Макс. 2 МБ. Загрузите новое, чтобы заменить текущее.</small>
                     @error('image')
@@ -64,12 +64,77 @@
                     @endif
                 </div>
 
+                <!-- Дополнительные изображения -->
+                <div class="col-12">
+                    <label class="form-label">Дополнительные фотографии</label>
+                    <input type="file" name="images[]" class="form-control @error('images.*') is-invalid @enderror" 
+                           accept="image/*" multiple>
+                    <small class="text-muted">Можно выбрать несколько файлов. JPG, PNG, GIF. Макс. 2 МБ каждое.</small>
+                    @error('images.*')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                    
+                    @if($plant->images->count() > 0)
+                        <div class="mt-3">
+                            <label class="form-label fw-semibold">Текущие дополнительные фото</label>
+                            <div class="row g-2">
+                                @foreach($plant->images as $image)
+                                    <div class="col-md-3 col-sm-4">
+                                        <div class="card">
+                                            <img src="{{ asset('storage/' . $image->path) }}" 
+                                                 class="card-img-top" 
+                                                 alt="Photo {{ $image->id }}"
+                                                 style="height: 120px; object-fit: cover;">
+                                            <div class="card-body p-2">
+                                                <label class="form-check">
+                                                    <input type="checkbox" name="delete_images[]" value="{{ $image->id }}" class="form-check-input">
+                                                    <span class="form-check-label text-danger small">Удалить</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
                 <div class="col-12">
                     <label class="form-label">Описание</label>
                     <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="5">{{ old('description', $plant->description) }}</textarea>
                     @error('description')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
+                </div>
+
+                <!-- Характеристики -->
+                <div class="col-12">
+                    <h5 class="mb-3">
+                        <i class="bi bi-list-ul me-2"></i>Характеристики
+                    </h5>
+                    <div class="row g-3">
+                        @php
+                            $groupedChars = [];
+                            foreach($characteristics as $char) {
+                                $groupedChars[$char->name][] = $char;
+                            }
+                        @endphp
+                        
+                        @foreach($groupedChars as $charName => $charValues)
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">{{ $charName }}</label>
+                                <select name="characteristics[]" class="form-select">
+                                    <option value="">— Не указано —</option>
+                                    @foreach($charValues as $char)
+                                        <option value="{{ $char->id }}" 
+                                                {{ $plant->characteristics->contains($char->id) ? 'selected' : '' }}>
+                                            {{ $char->value }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 

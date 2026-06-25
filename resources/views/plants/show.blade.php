@@ -14,10 +14,55 @@
     </nav>
 
     <div class="row g-5">
-        <!-- Изображение -->
+        <!-- Изображения со слайдером -->
         <div class="col-md-6">
-            @if($plant->image)
-                <img src="{{ asset('storage/' . $plant->image) }}" class="img-fluid rounded-3 shadow" alt="{{ $plant->name }}">
+            @php
+                $allImages = [];
+                if ($plant->image) {
+                    $allImages[] = $plant->image;
+                }
+                foreach ($plant->images->sortBy('sort_order') as $img) {
+                    $allImages[] = $img->path;
+                }
+            @endphp
+
+            @if(count($allImages) > 0)
+                <div id="plantCarousel" class="carousel slide rounded-3 shadow" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        @foreach($allImages as $index => $img)
+                            <button type="button" 
+                                    data-bs-target="#plantCarousel" 
+                                    data-bs-slide-to="{{ $index }}"
+                                    @if($index === 0) class="active" @endif
+                                    aria-label="Slide {{ $index + 1 }}">
+                            </button>
+                        @endforeach
+                    </div>
+                    
+                    <div class="carousel-inner rounded-3" style="min-height: 400px; background: #f8f9fa;">
+                        @foreach($allImages as $index => $imgPath)
+                            <div class="carousel-item @if($index === 0) active @endif">
+                                <div class="d-flex align-items-center justify-content-center" style="min-height: 400px;">
+                                    <img src="{{ asset('storage/' . $imgPath) }}" 
+                                         class="d-block" 
+                                         alt="{{ $plant->name }}"
+                                         style="max-height: 500px; max-width: 100%; object-fit: contain;">
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    
+                    @if(count($allImages) > 1)
+                        <button class="carousel-control-prev" type="button" data-bs-target="#plantCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Предыдущее</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#plantCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Следующее</span>
+                        </button>
+                    @endif
+                </div>
             @else
                 <div class="bg-light rounded-3 shadow d-flex align-items-center justify-content-center" style="height: 500px;">
                     <i class="bi bi-flower1" style="font-size: 8rem; color: var(--accent-green); opacity: 0.3;"></i>
@@ -141,7 +186,7 @@
         @endif
     @endauth
 
-    <div class="mt-4">
+    <div class="mt-5 pt-5">
         <a href="{{ route('plants.index') }}" class="btn btn-outline-success">
             <i class="bi bi-arrow-left me-2"></i>Вернуться к каталогу
         </a>
